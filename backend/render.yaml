@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: housingmatcher-api
+    env: python
+    plan: free  # Free tier - spins down after 15 min inactivity
+    buildCommand: cd housingmatcher && pip install -r requirements.txt
+    startCommand: cd housingmatcher && uvicorn housingmatcher.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APPS_SCRIPT_DEPLOY_URL
+        value: https://script.google.com/macros/s/AKfycbzTbT3TlczxuMCcuzRQHFipIeSNgEc2mN92Sk6kIpJTUlOZ3YkWzV-xTRm2MVE3rrTm/exec
+        sync: false  # Can override in Render dashboard
+      - key: CORS_ORIGINS
+        sync: false  # Set to your WordPress domain, e.g., https://your-site.com
+    # Note: For free tier, you may want to use UptimeRobot to keep it awake
+

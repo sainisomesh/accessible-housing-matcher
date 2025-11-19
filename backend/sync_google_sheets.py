@@ -19,7 +19,8 @@ if str(current_dir) not in sys.path:
     sys.path.insert(0, str(current_dir))
 
 # Import models and utils
-from housingmatcher import models, utils
+import models
+import utils
 from sqlalchemy.orm import Session
 
 # Google Sheets IDs from Apps Script

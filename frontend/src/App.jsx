@@ -44,24 +44,47 @@ function App() {
     return () => clearTimeout(timer)
   }, [formData.income, formData.location, formData.household_size, formData.accessibility_needs, formData.voucher_type])
 
-  const fetchUnits = async () => {
+  const fetchUnits = async (retryCount = 0) => {
+    const maxRetries = 3
+    const retryDelay = 2000 // 2 seconds
+    
     try {
       console.log('Fetching units from:', `${API_URL}/units`)
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+      
       const response = await fetch(`${API_URL}/units`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: controller.signal,
+        mode: 'cors',
+        credentials: 'omit',
       })
+      
+      clearTimeout(timeoutId)
+      
       if (!response.ok) {
         throw new Error(`Failed to fetch units: ${response.status} ${response.statusText}`)
       }
       const data = await response.json()
       console.log('Units fetched successfully:', data.length)
       setUnits(data)
+      setError(null) // Clear any previous errors
     } catch (err) {
       console.error('Error fetching units:', err)
-      setError(`Failed to load available units: ${err.message}. Backend may be starting up (Render free tier takes ~30 seconds on first request).`)
+      
+      // Retry logic for network errors or timeouts
+      if (retryCount < maxRetries && (err.name === 'AbortError' || err.message.includes('Failed to fetch'))) {
+        console.log(`Retrying fetch units (attempt ${retryCount + 1}/${maxRetries})...`)
+        setTimeout(() => {
+          fetchUnits(retryCount + 1)
+        }, retryDelay * (retryCount + 1)) // Exponential backoff
+        setError(`Backend is starting up... Retrying (${retryCount + 1}/${maxRetries})...`)
+      } else {
+        setError(`Failed to load available units: ${err.message}. ${err.name === 'AbortError' ? 'Request timed out. Backend may be starting up (Render free tier takes ~30 seconds on first request).' : 'Please check your connection and try again.'}`)
+      }
     }
   }
 

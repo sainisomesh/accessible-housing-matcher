@@ -24,11 +24,13 @@ from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from . import models, database, utils
+import models
+import database
+import utils
 
 # Import sync module (lazy import to avoid circular dependencies)
 try:
-    from . import sync_google_sheets
+    import sync_google_sheets
     SYNC_AVAILABLE = True
 except ImportError:
     SYNC_AVAILABLE = False
@@ -106,7 +108,7 @@ async def sync_google_sheets_endpoint(db: Session = Depends(database.get_db)) ->
     the backend has all existing data from Google Sheets.
     """
     try:
-        import housingmatcher.sync_google_sheets as sync_module
+        import sync_google_sheets as sync_module
         result = sync_module.sync_all(db)
         return result
     except Exception as e:

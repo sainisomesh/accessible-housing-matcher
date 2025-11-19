@@ -46,13 +46,22 @@ function App() {
 
   const fetchUnits = async () => {
     try {
-      const response = await fetch(`${API_URL}/units`)
-      if (!response.ok) throw new Error('Failed to fetch units')
+      console.log('Fetching units from:', `${API_URL}/units`)
+      const response = await fetch(`${API_URL}/units`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      if (!response.ok) {
+        throw new Error(`Failed to fetch units: ${response.status} ${response.statusText}`)
+      }
       const data = await response.json()
+      console.log('Units fetched successfully:', data.length)
       setUnits(data)
     } catch (err) {
-      setError('Failed to load available units. Make sure the backend is running.')
       console.error('Error fetching units:', err)
+      setError(`Failed to load available units: ${err.message}. Backend may be starting up (Render free tier takes ~30 seconds on first request).`)
     }
   }
 
@@ -70,13 +79,17 @@ function App() {
     setError(null)
 
     try {
+      console.log('Finding matches with API_URL:', API_URL)
       // Create a temporary applicant submission
       const applicantId = 'temp_' + Date.now()
       
       // Submit applicant data to get matches
+      console.log('Submitting applicant data...')
       const response = await fetch(`${API_URL}/webhook/applicant`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           submission_id: applicantId,
           answers: {
@@ -91,18 +104,40 @@ function App() {
         })
       })
 
-      if (!response.ok) throw new Error('Failed to submit applicant data')
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error')
+        throw new Error(`Failed to submit applicant data: ${response.status} ${response.statusText}. ${errorText}`)
+      }
 
       // Get matches for this applicant
-      const matchResponse = await fetch(`${API_URL}/match/${applicantId}`)
-      if (!matchResponse.ok) throw new Error('Failed to get matches')
+      console.log('Fetching matches...')
+      const matchResponse = await fetch(`${API_URL}/match/${applicantId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      if (!matchResponse.ok) {
+        const errorText = await matchResponse.text().catch(() => 'Unknown error')
+        throw new Error(`Failed to get matches: ${matchResponse.status} ${matchResponse.statusText}. ${errorText}`)
+      }
       
       const matchData = await matchResponse.json()
+      console.log('Matches received:', matchData)
       
       // Enrich matches with full unit details
       // Refresh units to get latest data
-      const unitsResponse = await fetch(`${API_URL}/units`)
-      if (!unitsResponse.ok) throw new Error('Failed to fetch units')
+      console.log('Fetching units for enrichment...')
+      const unitsResponse = await fetch(`${API_URL}/units`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      if (!unitsResponse.ok) {
+        const errorText = await unitsResponse.text().catch(() => 'Unknown error')
+        throw new Error(`Failed to fetch units: ${unitsResponse.status} ${unitsResponse.statusText}. ${errorText}`)
+      }
       const currentUnits = await unitsResponse.json()
       
       const enrichedMatches = matchData.matches.map(match => {
@@ -114,10 +149,16 @@ function App() {
         }
       }).filter(m => m.unit !== null) // Only show matches with valid units
 
+      console.log('Enriched matches:', enrichedMatches.length)
       setMatches(enrichedMatches)
     } catch (err) {
-      setError('Failed to find matches. ' + err.message)
-      console.error(err)
+      console.error('Error finding matches:', err)
+      const errorMsg = err.message || 'Unknown error'
+      if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+        setError(`Connection failed. The backend may be starting up (Render free tier takes ~30 seconds on first request). Please wait a moment and try again. Error: ${errorMsg}`)
+      } else {
+        setError(`Failed to find matches: ${errorMsg}`)
+      }
     } finally {
       setLoading(false)
     }

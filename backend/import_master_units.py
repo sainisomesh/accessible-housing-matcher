@@ -20,7 +20,9 @@ from typing import List, Dict, Any
 current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
 
-from housingmatcher import models, database, utils
+import models
+import database
+import utils
 
 # Ensure database tables exist
 models.Base.metadata.create_all(bind=database.engine)

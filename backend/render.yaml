@@ -1,15 +1,17 @@
 services:
   - type: web
-    name: housingmatcher-api
+    name: accessible-housing-backend
     env: python
     plan: free  # Free tier - spins down after 15 min inactivity
-    buildCommand: cd housingmatcher && pip install -r requirements.txt
-    startCommand: cd housingmatcher && uvicorn housingmatcher.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend
     envVars:
-      - key: APPS_SCRIPT_DEPLOY_URL
-        value: https://script.google.com/macros/s/AKfycbzTbT3TlczxuMCcuzRQHFipIeSNgEc2mN92Sk6kIpJTUlOZ3YkWzV-xTRm2MVE3rrTm/exec
-        sync: false  # Can override in Render dashboard
+      - key: APPS_SCRIPT_URL
+        sync: false  # Update in Render dashboard with your Apps Script URL
       - key: CORS_ORIGINS
-        sync: false  # Set to your WordPress domain, e.g., https://your-site.com
-    # Note: For free tier, you may want to use UptimeRobot to keep it awake
+        value: https://sainisomesh.github.io
+        sync: false
+      - key: DATABASE_URL
+        sync: false  # Leave empty for SQLite, or add PostgreSQL URL
 

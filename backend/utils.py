@@ -50,8 +50,8 @@ load_dotenv()
 # to a hosting platform you should set this value in the environment.
 # Default to the new deployment ID if not set
 APPS_SCRIPT_URL = os.getenv(
-    "APPS_SCRIPT_DEPLOY_URL",
-    "https://script.google.com/macros/s/AKfycbyV8pw9XZ3fiUxw1Ko1iB9AYWkna1bFR2eqnmenGLt7R8ODvPHBe2CL5UQ4BdiCYTE/exec"
+    "APPS_SCRIPT_URL",  # Also check APPS_SCRIPT_DEPLOY_URL for backwards compatibility
+    os.getenv("APPS_SCRIPT_DEPLOY_URL", "https://script.google.com/macros/s/AKfycbyV8pw9XZ3fiUxw1Ko1iB9AYWkna1bFR2eqnmenGLt7R8ODvPHBe2CL5UQ4BdiCYTE/exec")
 )
 
 

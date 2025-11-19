@@ -9,7 +9,8 @@
 // Your backend API URL
 // If using the Python/FastAPI backend, this should be your deployed backend URL
 // Example: 'https://your-backend-api.onrender.com' or 'http://localhost:8000' for local development
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+// NOTE: Update this with your Render backend URL after deploying to Render
+export const API_URL = import.meta.env.VITE_API_URL || 'https://your-backend-url.onrender.com'
 
 // JotForm Form URLs (update these to your own form URLs)
 export const JOTFORM_APPLICANT_URL = 'https://form.jotform.com/252946057108056'

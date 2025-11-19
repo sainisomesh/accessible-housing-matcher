@@ -43,7 +43,13 @@ app = FastAPI(title="HousingMatcher API")
 # CORS configuration
 # In production, update allow_origins to include your WordPress domain
 # Example: allow_origins=["https://your-wordpress-site.com", "http://localhost:5173"]
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",") if os.getenv("CORS_ORIGINS") else ["*"]
+cors_origins_env = os.getenv("CORS_ORIGINS", "")
+if cors_origins_env:
+    # Split by comma and strip whitespace
+    CORS_ORIGINS = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
+else:
+    # Default to allow all origins for development
+    CORS_ORIGINS = ["*"]
 
 app.add_middleware(
     CORSMiddleware,

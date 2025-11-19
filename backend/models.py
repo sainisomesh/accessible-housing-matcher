@@ -11,7 +11,7 @@ from sqlalchemy import Column, Integer, String, Boolean, Float, Text
 from sqlalchemy.types import JSON
 from sqlalchemy.orm import declarative_base
 
-from .database import Base
+from database import Base
 
 
 class Unit(Base):

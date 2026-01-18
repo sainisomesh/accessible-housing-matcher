@@ -1,3 +1,5 @@
+Project created for MaxHousing, CWRU Consult Your Community. Simplified Tutortial to help non-tech users integrate into their platform. 
+
 # Accessible Housing Matcher - Final Deliverable
 
 A complete housing matching system that connects JotForm, Google Sheets, Google Apps Script, and WordPress to help people find accessible housing.
